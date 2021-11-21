@@ -1,7 +1,7 @@
 package server
 
 import (
-	"net/http"
+	"deliveryhero/handler"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -29,31 +29,26 @@ func SetupRouter() *gin.Engine {
 	group := router.Group("/api")
 	{
 		group.GET("/get", func(c *gin.Context) {
-			res, err := handle()
-			// fmt.Printf("%+v\n", res)
+			h := handler.NewKeyValueHandler(c)
+			res, err := h.HanldeGetKey()
 			if err != nil {
 				ErrorResponse(c, err)
 			} else {
 				OkResponse(c, res)
 			}
-
 		})
 
 		group.POST("/set", func(c *gin.Context) {
-			c.JSON(http.StatusOK, "set")
+			h := handler.NewKeyValueHandler(c)
+			// TODO HOF
+			res, err := h.HanldeSetKey()
+			if err != nil {
+				ErrorResponse(c, err)
+			} else {
+				OkResponse(c, res)
+			}
 		})
 	}
 
 	return router
-}
-
-type Key struct {
-	Name    string "json:name"
-	Surname string "json:surname"
-}
-
-func handle() (*Key, error) {
-	// op := "Handle"
-	//err := &AppError{Code: constants.EINVALID, Op: op, Message: "asdasdasd"}
-	return &Key{Name: "fatih", Surname: "kurt"}, nil
 }

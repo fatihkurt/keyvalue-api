@@ -2,6 +2,7 @@ package server
 
 import (
 	"deliveryhero/constants"
+	"deliveryhero/helper"
 	"errors"
 	"net/http"
 
@@ -25,12 +26,12 @@ func ErrorResponse(c *gin.Context, err error) {
 }
 
 func getStatusCodeWithDefault(err error) (respCode int) {
-	var appError *AppError
+	var appError *helper.AppError
 	ok := errors.As(err, &appError)
 	if !ok {
 		respCode = 500
 	} else {
-		respCode = getStatusCode(ErrorCode(err))
+		respCode = getStatusCode(helper.ErrorCode(err))
 	}
 	return
 }
