@@ -46,9 +46,3 @@ func getStatusCode(code string) int {
 		return http.StatusBadRequest
 	}
 }
-
-func (fn AppHandler) SendErrorResponse(ctx *gin.Context) {
-	if err := fn(); err != nil {
-		ErrorResponse(ctx, err)
-	}
-}
