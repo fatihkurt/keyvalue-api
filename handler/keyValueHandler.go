@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 
 	"deliveryhero/constants"
 	"deliveryhero/helper"
@@ -12,13 +13,15 @@ import (
 type KeyValueHandler struct {
 	Context *gin.Context
 	Service *service.KeyValueService
+	Client  *redis.Client
 }
 
-func NewKeyValueHandler(ctx *gin.Context) *KeyValueHandler {
-	keyValueService := service.NewKeyValueService()
+func NewKeyValueHandler(ctx *gin.Context, client *redis.Client) *KeyValueHandler {
+	keyValueService := service.NewKeyValueService(client)
 	return &KeyValueHandler{
 		Context: ctx,
 		Service: keyValueService,
+		Client:  client,
 	}
 }
 

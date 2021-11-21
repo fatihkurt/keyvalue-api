@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 )
 
 var router *gin.Engine
@@ -27,10 +28,16 @@ func SetupRouter() *gin.Engine {
 		c.String(200, "Server running.")
 	})
 
+	client := redis.NewClient(&redis.Options{
+		Addr:     helper.GetEnv("REDIS_URL", "localhost:6379"),
+		Password: helper.GetEnv("REDIS_PASSWORD", ""),
+		DB:       0,
+	})
+
 	group := router.Group("/api")
 	{
 		group.GET("/get", func(c *gin.Context) {
-			h := handler.NewKeyValueHandler(c)
+			h := handler.NewKeyValueHandler(c, client)
 			err := h.HanldeGetKey()
 			if err != nil {
 				helper.ErrorResponse(c, err)
@@ -38,7 +45,7 @@ func SetupRouter() *gin.Engine {
 		})
 
 		group.POST("/set", func(c *gin.Context) {
-			h := handler.NewKeyValueHandler(c)
+			h := handler.NewKeyValueHandler(c, client)
 			err := h.HanldeSetKey()
 			if err != nil {
 				helper.ErrorResponse(c, err)

@@ -1,9 +1,15 @@
 package data
 
-type KeyValueData struct{}
+import "github.com/go-redis/redis/v8"
 
-func NewKeyValueData() *KeyValueData {
-	return &KeyValueData{}
+type KeyValueData struct {
+	Client *redis.Client
+}
+
+func NewKeyValueData(client *redis.Client) *KeyValueData {
+	return &KeyValueData{
+		Client: client,
+	}
 }
 
 func (d *KeyValueData) GetKey(key string) (value string, err error) {
