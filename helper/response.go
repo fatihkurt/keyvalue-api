@@ -1,13 +1,14 @@
-package server
+package helper
 
 import (
 	"deliveryhero/constants"
-	"deliveryhero/helper"
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+type AppHandler func() error
 
 type Response struct {
 	Result interface{} `json:"result"`
@@ -26,12 +27,12 @@ func ErrorResponse(c *gin.Context, err error) {
 }
 
 func getStatusCodeWithDefault(err error) (respCode int) {
-	var appError *helper.AppError
+	var appError *AppError
 	ok := errors.As(err, &appError)
 	if !ok {
 		respCode = 500
 	} else {
-		respCode = getStatusCode(helper.ErrorCode(err))
+		respCode = getStatusCode(ErrorCode(err))
 	}
 	return
 }
@@ -39,7 +40,15 @@ func getStatusCodeWithDefault(err error) (respCode int) {
 func getStatusCode(code string) int {
 	if code == constants.ENOTFOUND {
 		return http.StatusNotFound
+	} else if code == constants.ECONFLICT {
+		return http.StatusConflict
 	} else {
 		return http.StatusBadRequest
+	}
+}
+
+func (fn AppHandler) SendErrorResponse(ctx *gin.Context) {
+	if err := fn(); err != nil {
+		ErrorResponse(ctx, err)
 	}
 }

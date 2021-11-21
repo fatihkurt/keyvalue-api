@@ -18,26 +18,28 @@ func NewKeyValueHandler(ctx *gin.Context) *KeyValueHandler {
 	}
 }
 
-func (h *KeyValueHandler) HanldeGetKey() (*model.KeyValue, error) {
+func (h *KeyValueHandler) HanldeGetKey() (err error) {
 	op := "GetKey"
 	key := h.Context.Query("key")
 
 	if key == "" {
-		return nil, &helper.AppError{Code: constants.EINVALID, Op: op}
+		return &helper.AppError{Code: constants.EINVALID, Op: op}
 	}
 
-	return &model.KeyValue{Key: "dump", Value: "test"}, nil
+	result := &model.KeyValue{Key: "dump", Value: "test"}
+	helper.OkResponse(h.Context, result)
+	return
 }
 
-func (h *KeyValueHandler) HanldeSetKey() (*bool, error) {
+func (h *KeyValueHandler) HanldeSetKey() (err error) {
 	op := "SetKey"
 	key := h.Context.Query("key")
 	// value := h.Context.Query("value")
 
 	if key == "" {
-		return nil, &helper.AppError{Code: constants.EINVALID, Op: op}
+		return &helper.AppError{Code: constants.EINVALID, Op: op}
 	}
 
-	res := true
-	return &res, nil
+	helper.OkResponse(h.Context, true)
+	return
 }

@@ -2,6 +2,7 @@ package server
 
 import (
 	"deliveryhero/handler"
+	"deliveryhero/helper"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -30,22 +31,17 @@ func SetupRouter() *gin.Engine {
 	{
 		group.GET("/get", func(c *gin.Context) {
 			h := handler.NewKeyValueHandler(c)
-			res, err := h.HanldeGetKey()
+			err := h.HanldeGetKey()
 			if err != nil {
-				ErrorResponse(c, err)
-			} else {
-				OkResponse(c, res)
+				helper.ErrorResponse(c, err)
 			}
 		})
 
 		group.POST("/set", func(c *gin.Context) {
 			h := handler.NewKeyValueHandler(c)
-			// TODO HOF
-			res, err := h.HanldeSetKey()
+			err := h.HanldeSetKey()
 			if err != nil {
-				ErrorResponse(c, err)
-			} else {
-				OkResponse(c, res)
+				helper.ErrorResponse(c, err)
 			}
 		})
 	}
