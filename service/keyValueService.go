@@ -1,22 +1,25 @@
 package service
 
+import "deliveryhero/data"
+
 type KeyValueService struct {
-	db interface{}
+	data *data.KeyValueData
 }
 
 func NewKeyValueService() *KeyValueService {
+	keyValueData := data.NewKeyValueData()
 	return &KeyValueService{
-		db: "dump",
+		data: keyValueData,
 	}
 }
 
-func (h *KeyValueService) GetKey(key string) (value string, err error) {
+func (s *KeyValueService) GetKey(key string) (value string, err error) {
 	// op := "Service.GetKey"
 	// TODO data logic
 	return
 }
 
-func (h *KeyValueService) SetKey(key string, value string) (err error) {
+func (s *KeyValueService) SetKey(key string, value string) (err error) {
 	// op := "Service.SetKey"
 
 	// TODO data logic
