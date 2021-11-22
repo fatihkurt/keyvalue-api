@@ -9,31 +9,24 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 )
 
 func NewRouter() *mux.Router {
 
-	client := redis.NewClient(&redis.Options{
-		Addr:     helper.GetEnv("REDIS_URL", "localhost:6379"),
-		Password: helper.GetEnv("REDIS_PASSWORD", ""),
-		DB:       0,
-	})
-
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/api/get", GetKeyHandler(client)).Methods(http.MethodGet)
-	router.HandleFunc("/api/set", SetKeyHandler(client)).Methods(http.MethodPost)
+	router.HandleFunc("/api/get", GetKeyHandler()).Methods(http.MethodGet)
+	router.HandleFunc("/api/set", SetKeyHandler()).Methods(http.MethodPost)
 
 	router.Use(Logger(router))
 
 	return router
 }
 
-func GetKeyHandler(client *redis.Client) http.HandlerFunc {
+func GetKeyHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		h := handler.NewKeyValueHttpHandler(client)
+		h := handler.NewKeyValueHttpHandler()
 		vars := mux.Vars(r)
 		key := vars["key"]
 		result, err := h.HanldeGetKey(key)
@@ -45,7 +38,7 @@ func GetKeyHandler(client *redis.Client) http.HandlerFunc {
 	}
 }
 
-func SetKeyHandler(client *redis.Client) http.HandlerFunc {
+func SetKeyHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var keyValue model.KeyValue
 		body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
@@ -62,7 +55,7 @@ func SetKeyHandler(client *redis.Client) http.HandlerFunc {
 			}
 		}
 
-		h := handler.NewKeyValueHttpHandler(client)
+		h := handler.NewKeyValueHttpHandler()
 		result, err := h.HanldeSetKey(keyValue)
 		if err != nil {
 			helper.ErrorResponseHttp(w, err)

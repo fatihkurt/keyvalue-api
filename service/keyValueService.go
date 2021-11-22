@@ -1,19 +1,18 @@
 package service
 
 import (
-	"deliveryhero/data"
-
-	"github.com/go-redis/redis/v8"
+	"deliveryhero/db"
+	"deliveryhero/repo"
 )
 
 type KeyValueService struct {
-	data *data.KeyValueData
+	repo *repo.KeyValueData
 }
 
-func NewKeyValueService(client *redis.Client) *KeyValueService {
-	keyValueData := data.NewKeyValueData(client)
+func NewKeyValueService() *KeyValueService {
+	client := db.RedisClient()
 	return &KeyValueService{
-		data: keyValueData,
+		repo: repo.NewKeyValueRepo(client),
 	}
 }
 

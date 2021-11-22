@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"github.com/go-redis/redis/v8"
-
 	"deliveryhero/constants"
 	"deliveryhero/helper"
 	"deliveryhero/model"
@@ -11,14 +9,12 @@ import (
 
 type KeyValueHttpHandler struct {
 	Service *service.KeyValueService
-	Client  *redis.Client
 }
 
-func NewKeyValueHttpHandler(client *redis.Client) *KeyValueHttpHandler {
-	keyValueService := service.NewKeyValueService(client)
+func NewKeyValueHttpHandler() *KeyValueHttpHandler {
+	keyValueService := service.NewKeyValueService()
 	return &KeyValueHttpHandler{
 		Service: keyValueService,
-		Client:  client,
 	}
 }
 
