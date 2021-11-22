@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 
 	"deliveryhero/constants"
@@ -10,55 +9,50 @@ import (
 	"deliveryhero/service"
 )
 
-type KeyValueHandler struct {
-	Context *gin.Context
+type KeyValueHttpHandler struct {
 	Service *service.KeyValueService
 	Client  *redis.Client
 }
 
-func NewKeyValueHandler(ctx *gin.Context, client *redis.Client) *KeyValueHandler {
+func NewKeyValueHttpHandler(client *redis.Client) *KeyValueHttpHandler {
 	keyValueService := service.NewKeyValueService(client)
-	return &KeyValueHandler{
-		Context: ctx,
+	return &KeyValueHttpHandler{
 		Service: keyValueService,
 		Client:  client,
 	}
 }
 
-func (h *KeyValueHandler) HanldeGetKey() (err error) {
+func (h *KeyValueHttpHandler) HanldeGetKey(key string) (result *model.KeyValue, err error) {
 	op := "HandleGetKey"
-	key := h.Context.Query("key")
 
 	if key == "" {
-		return &helper.AppError{Code: constants.EINVALID, Op: op}
+		return nil, &helper.AppError{Code: constants.EINVALID, Op: op}
 	}
 
 	value, err := h.Service.GetKey(key)
 
 	if err != nil {
-		return &helper.AppError{Code: constants.EINTERNAL, Op: op, Err: err}
+		return nil, &helper.AppError{Code: constants.EINTERNAL, Op: op, Err: err}
 	}
 
-	result := &model.KeyValue{Key: "dump", Value: value}
-	helper.OkResponse(h.Context, result)
+	result = &model.KeyValue{Key: "dump", Value: value}
 	return
 }
 
-func (h *KeyValueHandler) HanldeSetKey() (err error) {
+func (h *KeyValueHttpHandler) HanldeSetKey(data model.KeyValue) (*bool, error) {
 	op := "HandleSetKey"
-	key := h.Context.Query("key")
-	value := h.Context.Query("value")
 
-	if key == "" {
-		return &helper.AppError{Code: constants.EINVALID, Op: op}
+	if data.Key == "" {
+		return nil, &helper.AppError{Code: constants.EINVALID, Op: op}
 	}
 
-	err = h.Service.SetKey(key, value)
+	err := h.Service.SetKey(data.Key, data.Value)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	helper.OkResponse(h.Context, true)
-	return
+	res := true
+
+	return &res, nil
 }

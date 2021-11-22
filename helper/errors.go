@@ -5,6 +5,7 @@ import (
 	"deliveryhero/constants"
 	"errors"
 	"fmt"
+	"net/http"
 )
 
 type AppError struct {
@@ -62,4 +63,25 @@ func (e *AppError) Error() string {
 		buf.WriteString(e.Message)
 	}
 	return buf.String()
+}
+
+func GetStatusCodeWithDefault(err error) (respCode int) {
+	var appError *AppError
+	ok := errors.As(err, &appError)
+	if !ok {
+		respCode = 500
+	} else {
+		respCode = getStatusCode(ErrorCode(err))
+	}
+	return
+}
+
+func getStatusCode(code string) int {
+	if code == constants.ENOTFOUND {
+		return http.StatusNotFound
+	} else if code == constants.ECONFLICT {
+		return http.StatusConflict
+	} else {
+		return http.StatusBadRequest
+	}
 }
