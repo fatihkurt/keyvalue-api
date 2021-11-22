@@ -2,12 +2,11 @@ package service
 
 import (
 	"deliveryhero/db"
-	"deliveryhero/helper"
 	"deliveryhero/repo"
 )
 
 type KeyValueService struct {
-	repo *repo.KeyValueData
+	repo *repo.KeyValueRepo
 }
 
 func NewKeyValueService() *KeyValueService {
@@ -17,22 +16,14 @@ func NewKeyValueService() *KeyValueService {
 	}
 }
 
-func (s *KeyValueService) GetKey(key string) (value string, err error) {
-	op := "Service.GetKey"
-	val, err := s.repo.GetKey(key)
-	if err != nil {
-		return "", &helper.AppError{Op: op, Err: err}
-	}
-	return val, nil
+func (s *KeyValueService) GetKey(key string) (string, error) {
+	return s.repo.GetKey(key)
 }
 
-func (s *KeyValueService) SetKey(key string, value string) (err error) {
-	op := "Service.SetKey"
+func (s *KeyValueService) SetKey(key string, value string) error {
+	return s.repo.SetKey(key, value)
+}
 
-	err = s.repo.SetKey(key, value)
-	if err != nil {
-		return &helper.AppError{Op: op, Err: err}
-	}
-
-	return
+func (s *KeyValueService) FlushDb() error {
+	return s.repo.FlushDb()
 }

@@ -22,16 +22,16 @@ func (h *KeyValueHttpHandler) HanldeGetKey(key string) (result *model.KeyValue, 
 	op := "HandleGetKey"
 
 	if key == "" {
-		return nil, &helper.AppError{Code: constants.EINVALID, Op: op}
+		return nil, &helper.AppError{Code: constants.EINVALID, Op: op, Message: "No key selected"}
 	}
 
 	value, err := h.Service.GetKey(key)
 
 	if err != nil {
-		return nil, &helper.AppError{Code: constants.EINTERNAL, Op: op, Err: err}
+		return nil, err
 	}
 
-	result = &model.KeyValue{Key: "dump", Value: value}
+	result = &model.KeyValue{Key: key, Value: value}
 	return
 }
 
@@ -43,6 +43,18 @@ func (h *KeyValueHttpHandler) HanldeSetKey(data model.KeyValue) (*bool, error) {
 	}
 
 	err := h.Service.SetKey(data.Key, data.Value)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res := true
+
+	return &res, nil
+}
+
+func (h *KeyValueHttpHandler) HandleFlushDb() (*bool, error) {
+	err := h.Service.FlushDb()
 
 	if err != nil {
 		return nil, err

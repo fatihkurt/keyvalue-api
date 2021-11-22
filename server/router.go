@@ -19,6 +19,7 @@ func NewRouter() *mux.Router {
 
 	router.HandleFunc("/get/{key}", GetKeyHandler()).Methods(http.MethodGet)
 	router.HandleFunc("/set", SetKeyHandler()).Methods(http.MethodPost)
+	router.HandleFunc("/flushDb", FlushDbHandler()).Methods(http.MethodPost)
 
 	router.Use(Logger(router))
 
@@ -61,6 +62,18 @@ func SetKeyHandler() http.HandlerFunc {
 
 		h := handler.NewKeyValueHttpHandler()
 		result, err := h.HanldeSetKey(keyValue)
+		if err != nil {
+			helper.ErrorResponseHttp(w, err)
+		} else {
+			helper.OkResponseHttp(w, result)
+		}
+	}
+}
+
+func FlushDbHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h := handler.NewKeyValueHttpHandler()
+		result, err := h.HandleFlushDb()
 		if err != nil {
 			helper.ErrorResponseHttp(w, err)
 		} else {
