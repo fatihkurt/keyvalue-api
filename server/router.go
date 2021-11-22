@@ -5,6 +5,7 @@ import (
 	"deliveryhero/helper"
 	"deliveryhero/model"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,10 +15,10 @@ import (
 
 func NewRouter() *mux.Router {
 
-	router := mux.NewRouter().StrictSlash(true)
+	router := mux.NewRouter()
 
-	router.HandleFunc("/api/get", GetKeyHandler()).Methods(http.MethodGet)
-	router.HandleFunc("/api/set", SetKeyHandler()).Methods(http.MethodPost)
+	router.HandleFunc("/get/{key}", GetKeyHandler()).Methods(http.MethodGet)
+	router.HandleFunc("/set", SetKeyHandler()).Methods(http.MethodPost)
 
 	router.Use(Logger(router))
 
@@ -26,9 +27,10 @@ func NewRouter() *mux.Router {
 
 func GetKeyHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		h := handler.NewKeyValueHttpHandler()
 		vars := mux.Vars(r)
 		key := vars["key"]
+		fmt.Println(vars)
+		h := handler.NewKeyValueHttpHandler()
 		result, err := h.HanldeGetKey(key)
 		if err != nil {
 			helper.ErrorResponseHttp(w, err)
@@ -43,16 +45,18 @@ func SetKeyHandler() http.HandlerFunc {
 		var keyValue model.KeyValue
 		body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 		if err != nil {
-			panic(err)
+			helper.ErrorResponseHttp(w, err)
+			return
 		}
-		if err := r.Body.Close(); err != nil {
-			panic(err)
-		}
-		if err := json.Unmarshal(body, &keyValue); err != nil {
-			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			if err := json.NewEncoder(w).Encode(err); err != nil {
-				helper.ErrorResponseHttp(w, err)
+		defer func() {
+			if err := r.Body.Close(); err != nil {
+				panic(err)
 			}
+		}()
+
+		if err := json.Unmarshal(body, &keyValue); err != nil {
+			helper.ErrorResponseHttp(w, err)
+			return
 		}
 
 		h := handler.NewKeyValueHttpHandler()

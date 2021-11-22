@@ -2,6 +2,8 @@ package repo
 
 import (
 	"context"
+	"deliveryhero/constants"
+	"deliveryhero/helper"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -20,11 +22,23 @@ func NewKeyValueRepo(client *redis.Client) *KeyValueData {
 
 func (d *KeyValueData) GetKey(key string) (value string, err error) {
 
-	// val := d.Client.Get(d.Context, key)
+	val, err := d.Client.Get(d.Context, key).Result()
 
-	return
+	if err == redis.Nil {
+		return "", &helper.AppError{Code: constants.ENOTFOUND}
+	}
+
+	if err != nil {
+		return "", err
+	}
+	return val, nil
 }
 
 func (d *KeyValueData) SetKey(key string, value string) (err error) {
+	err = d.Client.Set(d.Context, key, value, 0).Err()
+	if err != nil {
+		return err
+	}
+
 	return
 }

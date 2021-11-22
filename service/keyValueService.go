@@ -2,6 +2,7 @@ package service
 
 import (
 	"deliveryhero/db"
+	"deliveryhero/helper"
 	"deliveryhero/repo"
 )
 
@@ -17,15 +18,21 @@ func NewKeyValueService() *KeyValueService {
 }
 
 func (s *KeyValueService) GetKey(key string) (value string, err error) {
-	// op := "Service.GetKey"
-	// TODO data logic
-	return
+	op := "Service.GetKey"
+	val, err := s.repo.GetKey(key)
+	if err != nil {
+		return "", &helper.AppError{Op: op, Err: err}
+	}
+	return val, nil
 }
 
 func (s *KeyValueService) SetKey(key string, value string) (err error) {
-	// op := "Service.SetKey"
+	op := "Service.SetKey"
 
-	// TODO data logic
+	err = s.repo.SetKey(key, value)
+	if err != nil {
+		return &helper.AppError{Op: op, Err: err}
+	}
 
 	return
 }
