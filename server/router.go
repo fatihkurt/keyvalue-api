@@ -17,6 +17,10 @@ func NewRouter() *mux.Router {
 
 	router := mux.NewRouter()
 
+	// // serve doc
+	// router.PathPrefix("/doc/").Handler(http.StripPrefix("/doc/", http.FileServer(http.Dir("./doc"))))
+	router.PathPrefix("/lib/godoc/").Handler(http.StripPrefix("/lib/godoc/", http.FileServer(http.Dir("./lib/godoc"))))
+
 	router.HandleFunc("/", Index).Methods(http.MethodGet)
 	router.HandleFunc("/get/{key}", GetKeyHandler()).Methods(http.MethodGet)
 	router.HandleFunc("/set", SetKeyHandler()).Methods(http.MethodPost)

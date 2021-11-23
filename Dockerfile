@@ -19,6 +19,7 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.5 && \
     chmod +x /bin/grpc_health_probe
 WORKDIR /src
 COPY --from=builder /go/bin/deliveryhero /src/deliveryhero
+COPY ./lib/godoc /src/lib/godoc
 
 # Definition of this variable is used by 'skaffold debug' to identify a golang binary.
 # Default behavior - a failure prints a stack trace for the current goroutine.
