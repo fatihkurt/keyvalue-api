@@ -65,7 +65,13 @@ func Backup() {
 		log.Fatal(err)
 	}
 
-	err = writeFile(valuesJSON, getBackupFilePath(time.Now()))
+	file, err := getBackupFilePath(time.Now())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = writeFile(valuesJSON, file)
 	if err != nil {
 		fmt.Println(err)
 	} else {
@@ -77,7 +83,7 @@ func Restore() {
 	filepath, err := getMostRecentBackupFile()
 
 	if err != nil {
-		fmt.Println("No backup file to restore")
+		fmt.Println("Cannot restore backup")
 		return
 	}
 	fmt.Println("Restore started!")
@@ -114,35 +120,41 @@ func Restore() {
 	log.Printf("%d items restored from %s!", restoredRowCount, filepath)
 }
 
-func getBackupFilePath(t time.Time) string {
-	tempFilePath := getTempFilePath()
-	return tempFilePath + t.Format(BACKUP_FILE_TIME_FORMAT) + BACKUP_FILE_SUFFIX
+func getBackupFilePath(t time.Time) (string, error) {
+	tempFilePath, err := getTempFilePath()
+	if err != nil {
+		return "", err
+	}
+	filepath := tempFilePath + t.Format(BACKUP_FILE_TIME_FORMAT) + BACKUP_FILE_SUFFIX
+	return filepath, nil
 }
 
-func getTempFilePath() string {
+func getTempFilePath() (string, error) {
 	tempPathStoreFile := "tmp/redisbackuptemppath.txt"
 	file, err := ioutil.ReadFile(tempPathStoreFile) // TODO Persistence
 	if err != nil {
 		tempDirLoc, err := ioutil.TempDir("", "redisbackup")
 		if err != nil {
-			fmt.Println("tempdirloc")
-			panic(err)
+			return "", err
 		}
 		if err = writeFile([]byte(tempDirLoc), tempPathStoreFile); err != nil {
 			fmt.Printf("Failed creating file: %s", err)
 			panic(err)
 		}
 
-		return tempDirLoc
+		return tempDirLoc, nil
 	}
-	return string(file)
+	return string(file), nil
 }
 
 func getMostRecentBackupFile() (string, error) {
-	fp := getTempFilePath()
+	fp, err := getTempFilePath()
+	if err != nil {
+		return "", err
+	}
 	files, err := ioutil.ReadDir(fp)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	var mostRecentFileTime *time.Time
@@ -166,7 +178,11 @@ func getMostRecentBackupFile() (string, error) {
 		return "", errors.New("no backup file exists")
 	}
 
-	return getBackupFilePath(*mostRecentFileTime), nil
+	fp, err = getBackupFilePath(*mostRecentFileTime)
+	if err != nil {
+		return "", err
+	}
+	return fp, nil
 }
 
 func writeFile(fileContent []byte, filepath string) error {
