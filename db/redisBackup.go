@@ -15,6 +15,7 @@ import (
 
 const BACKUP_FILE_TIME_FORMAT = "2006-01-02 15:04:05"
 const BACKUP_FILE_SUFFIX = "-data.json"
+const BACKUP_FILE_DIR = "./tmp/"
 
 func BackupInterval(interval time.Duration) {
 	ticker := time.NewTicker(interval)
@@ -65,13 +66,9 @@ func Backup() {
 		log.Fatal(err)
 	}
 
-	file, err := getBackupFilePath(time.Now())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	fp := getBackupFilePath(time.Now())
 
-	err = writeFile(valuesJSON, file)
+	err = writeFile(valuesJSON, fp)
 	if err != nil {
 		fmt.Println(err)
 	} else {
@@ -120,39 +117,14 @@ func Restore() {
 	log.Printf("%d items restored from %s!", restoredRowCount, filepath)
 }
 
-func getBackupFilePath(t time.Time) (string, error) {
-	tempFilePath, err := getTempFilePath()
-	if err != nil {
-		return "", err
-	}
-	filepath := tempFilePath + t.Format(BACKUP_FILE_TIME_FORMAT) + BACKUP_FILE_SUFFIX
-	return filepath, nil
-}
-
-func getTempFilePath() (string, error) {
-	tempPathStoreFile := "tmp/redisbackuptemppath.txt"
-	file, err := ioutil.ReadFile(tempPathStoreFile) // TODO Persistence
-	if err != nil {
-		tempDirLoc, err := ioutil.TempDir("", "redisbackup")
-		if err != nil {
-			return "", err
-		}
-		if err = writeFile([]byte(tempDirLoc), tempPathStoreFile); err != nil {
-			fmt.Printf("Failed creating file: %s", err)
-			panic(err)
-		}
-
-		return tempDirLoc, nil
-	}
-	return string(file), nil
+func getBackupFilePath(t time.Time) string {
+	filepath := BACKUP_FILE_DIR + t.Format(BACKUP_FILE_TIME_FORMAT) + BACKUP_FILE_SUFFIX
+	return filepath
 }
 
 func getMostRecentBackupFile() (string, error) {
-	fp, err := getTempFilePath()
-	if err != nil {
-		return "", err
-	}
-	files, err := ioutil.ReadDir(fp)
+
+	files, err := ioutil.ReadDir(BACKUP_FILE_DIR)
 	if err != nil {
 		return "", err
 	}
@@ -178,10 +150,8 @@ func getMostRecentBackupFile() (string, error) {
 		return "", errors.New("no backup file exists")
 	}
 
-	fp, err = getBackupFilePath(*mostRecentFileTime)
-	if err != nil {
-		return "", err
-	}
+	fp := getBackupFilePath(*mostRecentFileTime)
+
 	return fp, nil
 }
 

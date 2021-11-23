@@ -9,7 +9,7 @@ import (
 func main() {
 	go func() {
 		db.Restore()
-		db.BackupInterval(1 * time.Minute)
+		db.BackupInterval(10 * time.Minute)
 	}()
 	server.SetupServer()
 }
