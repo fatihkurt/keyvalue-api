@@ -17,6 +17,7 @@ func NewRouter() *mux.Router {
 
 	router := mux.NewRouter()
 
+	router.HandleFunc("/", Index).Methods(http.MethodGet)
 	router.HandleFunc("/get/{key}", GetKeyHandler()).Methods(http.MethodGet)
 	router.HandleFunc("/set", SetKeyHandler()).Methods(http.MethodPost)
 	router.HandleFunc("/flushDb", FlushDbHandler()).Methods(http.MethodPost)
@@ -24,6 +25,11 @@ func NewRouter() *mux.Router {
 	router.Use(Logger(router))
 
 	return router
+}
+
+func Index(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+	w.Write([]byte("Server running."))
 }
 
 func GetKeyHandler() http.HandlerFunc {
