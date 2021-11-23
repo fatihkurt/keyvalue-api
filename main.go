@@ -1,11 +1,13 @@
 package main
 
 import (
+	"deliveryhero/db"
 	"deliveryhero/server"
+	"time"
 )
 
 func main() {
-	// db.Restore()
-	// db.BackupInterval(1)
+	go db.Restore()
+	go db.BackupInterval(1 * time.Minute)
 	server.SetupServer()
 }

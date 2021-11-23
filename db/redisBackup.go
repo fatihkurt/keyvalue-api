@@ -16,8 +16,8 @@ import (
 const BACKUP_FILE_TIME_FORMAT = "2006-01-02 15:04:05"
 const BACKUP_FILE_SUFFIX = "-data.json"
 
-func BackupInterval(interval int) {
-	ticker := time.NewTicker(time.Duration(interval) * time.Minute)
+func BackupInterval(interval time.Duration) {
+	ticker := time.NewTicker(interval)
 	quit := make(chan struct{})
 	go func() {
 		for {
@@ -121,10 +121,12 @@ func getTempFilePath() string {
 	if err != nil {
 		tempDirLoc, err := ioutil.TempDir("", "redisbackup")
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println("tempdirloc")
+			panic(err)
 		}
 		if err = writeFile([]byte(tempDirLoc), tempPathStoreFile); err != nil {
-			log.Fatalf("Failed creating file: %s", err)
+			fmt.Printf("Failed creating file: %s", err)
+			panic(err)
 		}
 
 		return tempDirLoc
