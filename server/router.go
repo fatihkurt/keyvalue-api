@@ -33,7 +33,10 @@ func NewRouter() *mux.Router {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
-	w.Write([]byte("Server running."))
+	_, err := w.Write([]byte("Server running."))
+	if err != nil {
+		panic(err)
+	}
 }
 
 func GetKeyHandler() http.HandlerFunc {

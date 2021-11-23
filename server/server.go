@@ -46,7 +46,10 @@ func waitForShutdown(srv *http.Server) {
 	// Create a deadline to wait for.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	srv.Shutdown(ctx)
+	err := srv.Shutdown(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	log.Println("Shutting down")
 	os.Exit(0)

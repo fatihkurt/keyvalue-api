@@ -65,8 +65,12 @@ func Backup() {
 		log.Fatal(err)
 	}
 
-	writeFile(valuesJSON, getBackupFilePath(time.Now()))
-	fmt.Println("Bacup created successfully!")
+	err = writeFile(valuesJSON, getBackupFilePath(time.Now()))
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("Bacup created successfully!")
+	}
 }
 
 func Restore() {
@@ -177,7 +181,10 @@ func writeFile(fileContent []byte, filepath string) error {
 
 	datawriter := bufio.NewWriter(file)
 
-	datawriter.Write(fileContent)
+	_, err = datawriter.Write(fileContent)
+	if err != nil {
+		return err
+	}
 	datawriter.Flush()
 	return nil
 }
