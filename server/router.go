@@ -18,7 +18,6 @@ func NewRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	// // serve doc
-	// router.PathPrefix("/doc/").Handler(http.StripPrefix("/doc/", http.FileServer(http.Dir("./doc"))))
 	router.PathPrefix("/lib/godoc/").Handler(http.StripPrefix("/lib/godoc/", http.FileServer(http.Dir("./lib/godoc"))))
 
 	router.HandleFunc("/", Index).Methods(http.MethodGet)
@@ -39,6 +38,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Attach handle get key request and process http result
 func GetKeyHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
