@@ -17,7 +17,7 @@ func SetupServer() {
 
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         helper.GetEnv("PORT", ":8080"),
+		Addr:         helper.GetEnv("PORT", ":5000"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
