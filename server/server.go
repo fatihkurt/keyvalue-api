@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"deliveryhero/helper"
 	"log"
 	"net/http"
 	"os"
@@ -16,7 +17,7 @@ func SetupServer() {
 
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         ":5000",
+		Addr:         helper.GetEnv("PORT", ":8080"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
